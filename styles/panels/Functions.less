@@ -1,0 +1,19 @@
+.functions {
+	display: flex;
+	flex-direction: column;
+	flex: 0.25;
+    border-right: @border;
+	.function {
+		flex: 1;
+		text-align: center;
+		height: 50px;
+		cursor: pointer;
+		background-color: rgba(255, 152, 0, 0.32);
+		padding-top: 25px;
+	    border-bottom: @border;
+	    box-shadow: 1px 1px 1px 1px #888888;
+	    &.clicked {
+	    	box-shadow: 0px 0px 1px 2px #F44336;
+	    }
+	}
+}

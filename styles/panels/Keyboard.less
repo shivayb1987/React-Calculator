@@ -1,0 +1,52 @@
+@border: 1px solid;
+.keyboard {
+    flex: 0.75;
+    .row {
+	    border: @border;
+	    border-bottom: none;
+	    &:last-child {
+	    	border-bottom: @border;
+	    }
+	     .numeral {
+		    width: 33%;
+		    border-right: @border;
+		    height: 50px;
+		    background-color: rgba(158, 158, 158, 0.26);
+		    padding-top: 25px;
+		    &:last-child {
+		    	border-right: none;
+		    }
+	    }
+	    .numeral-0 {
+	    	width: 64%;
+	    	border-right: @border;
+    	    height: 50px;
+    	    backgroud-color: rgba(128, 128, 128, 0.28);
+    	    padding-top: 25px;
+	    }
+	    .numeral-dot {
+	    	width: 35%;
+    	    height: 50px;
+    	    backgroud-color: rgba(128, 128, 128, 0.28);
+    	    padding-top: 25px;
+	    }
+        &.last {
+            border-top: none;
+        }
+    }
+    .controls {
+    	border-left: @border;
+    	border-right: @border; 
+    	.clear {
+		    width: 30%;
+		    height: 50px;
+		    border-right: @border; 
+		    padding-top: 25px;
+    	}
+    	.reset {
+    		width: 69%;
+    		height: 50px;
+    		padding-top: 25px;
+    	}
+    }
+}
