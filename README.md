@@ -1,6 +1,13 @@
-Clone the repo
+# React-Calculator:
+* I've used ReactJS, ES6, Gulp, Webpack, Less, Enzyme to build the project.
+* It's a basic calculator which performs simple operations like +, -, X, /. It shows the intermediate results.
+* You can clear and reset the results
+* It shows the history of last 5 calculations at the top
+* It is accessible via both Keyboard and Mouse.
 
-Go into the repo folder via terminal and follow below steps to run the application
+## Clone the repo
+
+## Go into the repo folder via terminal and follow below steps to run the application
 
   1. npm install
   1. npm start (to build bundle.js)
