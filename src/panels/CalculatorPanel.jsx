@@ -32,14 +32,13 @@ export default class CalculatorPanel extends Component {
 		}, 0);
 	}
 
-	//use it recursively in case of "="
-	updateActionArr(value, recursive = false) {
+	updateActionArr(value) {
 		let { OPERATIONS } = this.props;
 		let {actionArr, history, operation} = this.state;
 
 		let operatorPresent = actionArr.find(action => OPERATIONS.includes(action));
 		let tempArr = actionArr.slice(0);
-		if (this._inProgress) {  //it's data, not a function so need to concatenate
+		if (this._inProgress) {
 			let concatenated;
 			if (operation === "") {
 				concatenated = actionArr.join('');
@@ -55,7 +54,6 @@ export default class CalculatorPanel extends Component {
 				operation: concatenated,
 				result: ""
 			});
-			// return;
 		} else {
 			tempArr = [];
 			this._inProgress = true;
@@ -65,20 +63,16 @@ export default class CalculatorPanel extends Component {
 				result: ""
 			});
 		}
-		if (!recursive) {  // "=" not pressed, so continue to next operation
-			if (!OPERATIONS.includes(value)) {
-				let prevValue = tempArr[tempArr.length - 1];
-				if (!!prevValue && !OPERATIONS.includes(prevValue)) {
-					tempArr.pop();
-					tempArr.push(prevValue + value); 
-				} else {
-					tempArr.push(value);
-				} 
+		if (!OPERATIONS.includes(value)) {
+			let prevValue = tempArr[tempArr.length - 1];
+			if (!!prevValue && !OPERATIONS.includes(prevValue)) {
+				tempArr.pop();
+				tempArr.push(prevValue + value); 
 			} else {
 				tempArr.push(value);
-			}
+			} 
 		} else {
-			value = tempArr[1];
+			tempArr.push(value);
 		}
 		this.setState({
 			reset: false,
@@ -86,93 +80,13 @@ export default class CalculatorPanel extends Component {
 			actionArr: tempArr
 		});
 		let result = "";
-		// if (!recursive && this.countOfOperations(tempArr) < 2 && value !== "=") { // not enough operands to perform any operation
-		// 	this.setState({
-		// 		reset: false,
-		// 		result: "",
-		// 		actionArr: tempArr
-		// 	});
-		// 	return "";
-		// } else {  // we now have enough operands to perform an operation
-			// if (!nonFunctions.length) {
-			// 	this.setState({
-			// 		reset: false,
-			// 		result: value,
-			// 		actionArr: []
-			// 	});
-			// 	return "";
-			// } else {
-			// 	switch (value) {
-			// 		case "/": 
-			// 			//get operands
-			// 			operands = tempArr.filter(item => item !== value);
-			// 			if (operands.length > 2) {
-			// 				let partialResult = this.updateActionArr("=", true);
-			// 				result = [partialResult, "/"];
-			// 			} else {
-			// 				result = this.divide(...operands, recursive);
-			// 			}
-			// 			this.updateState(result, recursive);
-			// 			break;
-			// 		case "*":
-			// 		case "X": 
-			// 			operands = tempArr.filter(item => item !== value);
-			// 			let length = tempArr.length;
-			// 			if (length > 2) {
-			// 				tempArr.slice(-3);
-			// 			}
-			// 			let partialResultPresent = false;
-			// 			if (tempArr[tempArr.length - 1] === value) {
-			// 				let partialResult = this.updateActionArr("X", true);
-			// 				result = [partialResult];
-			// 				partialResultPresent = true;
-			// 			} else {
-			// 				result = this.multiply(...operands, recursive);
-			// 			}
-			// 			this.updateState(result, recursive, partialResultPresent);
-			// 			break;
-			// 		case "-": 
-			// 			operands = tempArr.filter(item => item !== value);
-			// 			if (operands.length > 2) {
-			// 				let partialResult = this.updateActionArr("=", true);
-			// 				result = [partialResult, "-"];
-			// 			} else {
-			// 				result = this.subtract(...operands, recursive);
-			// 			}
-			// 			this.updateState(result, recursive);
-			// 			break;
-			// 		case "+": 
-			// 			operands = tempArr.filter(item => item !== value);
-			// 			if (operands.length > 2) {
-			// 				let partialResult = this.updateActionArr("=", true);
-			// 				result = [partialResult, "+"];
-			// 			} else {
-			// 				result = this.add(...operands, recursive);
-			// 			}
-						
-			// 			this.updateState(result, recursive);
-			// 			break;
-			// 		case "=": //show result and save it for History
-			// 			result = this.updateActionArr("=", true);
-			// 			break;
-			// 		default:
-			// 			this.setState({
-			// 				reset: false, 
-			// 				result: value,
-			// 				actionArr: tempArr
-			// 			});
-			// 			result = "";
-			// 	}
-			// }
-				if (tempArr.length > 2) {
-					result = this.performOperations(value, tempArr.slice(0));
-				}
-				this.setState({
-					actionArr: tempArr
-				});
-				return result;
-			// }
-		// }
+		if (tempArr.length > 2) {
+			result = this.performOperations(value, tempArr.slice(0));
+		}
+		this.setState({
+			actionArr: tempArr
+		});
+		return result;
 	}
 
 	performOperations(operation, tempArr, recursive = false) {
@@ -183,8 +97,6 @@ export default class CalculatorPanel extends Component {
 		let partialResult = "";
 		switch (operation) {
 			case "/": 
-				//get operands
-				operands = tempArr.filter(item => item !== operation);
 				length = tempArr.length;
 				let partialResultPresent = false;
 				if (length > 2) {
@@ -195,13 +107,13 @@ export default class CalculatorPanel extends Component {
 						result = [partialResult];
 						partialResultPresent = true;
 					} else {
+						operands = tempArr.filter(item => item !== operation);
 						result = this.divide(...operands, recursive);
 					}
 				}
 				this.updateState(result, false, partialResultPresent);
 				break;
 			case "X": 
-				operands = tempArr.filter(item => item !== operation);
 				length = tempArr.length;
 				partialResultPresent = false;
 				if (length > 2) {
@@ -212,13 +124,13 @@ export default class CalculatorPanel extends Component {
 						result = [partialResult];
 						partialResultPresent = true;
 					} else {
+						operands = tempArr.filter(item => item !== operation);
 						result = this.multiply(...operands, recursive);
 					}
 				}
 				this.updateState(result, false, partialResultPresent);
 				break;
 			case "-": 
-				operands = tempArr.filter(item => item !== operation);
 				length = tempArr.length;
 				partialResultPresent = false;
 				if (length > 2) {
@@ -229,13 +141,13 @@ export default class CalculatorPanel extends Component {
 						result = [partialResult];
 						partialResultPresent = true;
 					} else {
+						operands = tempArr.filter(item => item !== operation);
 						result = this.subtract(...operands, recursive);
 					}
 				}
 				this.updateState(result, false, partialResultPresent);
 				break;
 			case "+": 
-				operands = tempArr.filter(item => item !== operation);
 				length = tempArr.length;
 				partialResultPresent = false;
 				if (length > 2) {
@@ -246,21 +158,39 @@ export default class CalculatorPanel extends Component {
 						result = [partialResult];
 						partialResultPresent = true;
 					} else {
+						operands = tempArr.filter(item => item !== operation);
 						result = this.add(...operands, recursive);
 					}
 				}
 				this.updateState(result, false, partialResultPresent);
 				break;
-			case "=": //show result and save it for History
+			case "=":
 				tempArr.splice(-1);
 				do {
-					console.log(tempArr);
-					let lastOp = tempArr.splice(-3);
+					let lastOp = [];
+					let index = tempArr.indexOf("/");
+					
+					if (!~index) {
+						index = tempArr.indexOf("X");
+					}
+					
+					if (!!~index && tempArr.length > 3) {
+						lastOp = tempArr.splice(index-1, 3);
+					} else {
+						lastOp = tempArr.splice(-3);
+					}
 					operation = lastOp[1];
+					
 					result = this.performOperations(operation, lastOp, true);
-					// tempArr = tempArr.slice(-2);
-					tempArr.push(result);
+					if (tempArr.length > 1) {
+						if (!!~index) {
+							tempArr.splice(index-1, 0, result);
+						} else {
+							tempArr.push(result);
+						}
+					}
 				} while (tempArr.length >= 2)
+				
 				this.updateState(result, !recursive);
 				break;
 			default:
