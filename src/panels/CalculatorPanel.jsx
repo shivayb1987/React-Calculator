@@ -37,18 +37,45 @@ export default class CalculatorPanel extends Component {
 		let {actionArr, history, operation} = this.state;
 
 		let operatorPresent = actionArr.find(action => OPERATIONS.includes(action));
-		let tempArr = actionArr.slice(0);
+		let tempArr = actionArr.slice();
+		if (value !== "-" && OPERATIONS.includes(value) && !actionArr.length) {
+			return;
+		}
+		if (OPERATIONS.includes(value)) {
+			if (value !== "-" || !!actionArr.length) {
+				let values = actionArr.filter(value => !OPERATIONS.includes(value));
+				if (!values.length) {
+					this.setState({
+						reset: false,
+						actionArr: [],
+						operation: "",
+						result: ""
+					});
+					return;
+				}
+			}
+		}
 		if (this._inProgress) {
+			let prevValue = tempArr[tempArr.length - 1];
 			let concatenated;
-			if (operation === "") {
-				concatenated = actionArr.join('');
+			if (tempArr.length < 3 && value === "=") {
+				return;
+			}
+			if (OPERATIONS.includes(prevValue) && OPERATIONS.includes(value)) {
+				tempArr.pop();
+				concatenated = `${tempArr.join(' ')} ${value}`;
 			} else {
-				concatenated = operation;
+				if (operation === "") {
+					concatenated = actionArr.join('');
+				} else {
+					concatenated = operation;
+				}
+				concatenated = OPERATIONS.includes(value) ? `${concatenated} ${value} `: `${concatenated}${value}`;
+				if (value === "=") {
+					concatenated = "";
+				}
 			}
-			concatenated = OPERATIONS.includes(value) ? `${concatenated} ${value} `: `${concatenated}${value}`;
-			if (value === "=") {
-				concatenated = "";
-			}
+			
 			this.setState({
 				reset: false,
 				operation: concatenated,
@@ -57,12 +84,26 @@ export default class CalculatorPanel extends Component {
 		} else {
 			tempArr = [];
 			this._inProgress = true;
+			if (OPERATIONS.includes(value)) {
+				this.setState({
+					reset: false,
+					operation: "",
+					actionArr: []
+				});
+				return;
+			}
 			this.setState({
 				reset: false,
+				actionArr: [value],
 				operation: value,
 				result: ""
 			});
+			return;
 		}
+		if (actionArr.length < 2 && value === "=") {
+			return;
+		}
+		tempArr = actionArr.slice(0);
 		if (!OPERATIONS.includes(value)) {
 			let prevValue = tempArr[tempArr.length - 1];
 			if (!!prevValue && !OPERATIONS.includes(prevValue)) {
@@ -76,8 +117,7 @@ export default class CalculatorPanel extends Component {
 		}
 		this.setState({
 			reset: false,
-			result: "",
-			actionArr: tempArr
+			result: ""
 		});
 		let result = "";
 		if (tempArr.length > 2) {
@@ -173,7 +213,11 @@ export default class CalculatorPanel extends Component {
 					if (!~index) {
 						index = tempArr.indexOf("X");
 					}
-					
+
+					if (!~index) {
+						index = tempArr.indexOf("-");
+					}
+
 					if (!!~index && tempArr.length > 3) {
 						lastOp = tempArr.splice(index-1, 3);
 					} else {
@@ -215,7 +259,7 @@ export default class CalculatorPanel extends Component {
 			});
 			return;
 		} else if (saveResult) {
-			let concatenated = `${operation} = ${result}`;
+			let concatenated = `${actionArr.join(" ")} = ${result}`;
 			tempHistArr.unshift(concatenated);
 		}
 		result = result instanceof Array ? result: [result];
@@ -254,13 +298,14 @@ export default class CalculatorPanel extends Component {
 	}
 
 	add(a, b) {
-		return parseInt(a) + parseInt(b);
+		return parseFloat(a) + parseFloat(b);
 	}
 
 	//clear the result and stored values
 	clear() {
 		this.setState({
 			result: "",
+			operation: "",
 			actionArr: [],
 			reset: true
 		});
