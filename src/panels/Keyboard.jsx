@@ -18,7 +18,7 @@ export default class Keyboard extends Component {
 			if (keyCode >= 48 && keyCode <= 57) {
 				onKeyPress(event, event.key);
 			} else {
-				if (keyCode === 67 || keyCode === 8) { // C 
+				if (keyCode === 67) { // C 
 					onClear();
 				} else if (keyCode === 82) { // R
 					onReset();

@@ -47,6 +47,10 @@ export default class Functions extends Component {
 					case 191: // /
 					case 189: // -
 						onClick(ev, ev.key);
+						break;
+					case 8: // DEL
+						onClick(ev, "DEL");
+
 				}
 			}
 		});	
@@ -70,8 +74,15 @@ export default class Functions extends Component {
 	}
 	
 	render () {
+		let { resultShown } = this.props;
 		return (
 			<div className="functions">
+				{ resultShown ? 
+					"" : 
+					<div className="function" onClick={ this.onFunctinClick.bind(this) }>
+						DEL
+					</div> 
+				}
 				<div className="function" onClick={ this.onFunctinClick.bind(this) }>
 					/
 				</div>

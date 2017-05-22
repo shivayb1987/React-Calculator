@@ -9,6 +9,7 @@ export default class CalculatorPanel extends Component {
 	constructor() {
 		super();
 		this._inProgress = true;
+		this._resultShown = false;
 	}
 	static defaultProps = {
 		OPERATIONS: ['/', 'X', '-', '+', '=']
@@ -57,7 +58,7 @@ export default class CalculatorPanel extends Component {
 		}
 		if (this._inProgress) {
 			let prevValue = tempArr[tempArr.length - 1];
-			let concatenated;
+			let concatenated = "";
 			if (tempArr.length < 3 && value === "=") {
 				return;
 			}
@@ -70,7 +71,13 @@ export default class CalculatorPanel extends Component {
 				}
 			} else {
 				if (operation === "") {
-					concatenated = actionArr.join('');
+					if (this._resultShown) {
+						if (OPERATIONS.includes(value)) {
+							concatenated = tempArr.join("");
+						} else {
+							concatenated = "";
+						}
+					}
 				} else {
 					concatenated = operation;
 				}
@@ -82,6 +89,27 @@ export default class CalculatorPanel extends Component {
 					concatenated = `-${value}`;
 				}
 			}
+
+			if (value === "DEL") {
+				if (!!tempArr.length) {
+					let lastValue = tempArr[tempArr.length -1];
+					if (OPERATIONS.includes(lastValue)) {
+						tempArr.pop();
+					} else {
+						let dividend = Math.floor(lastValue / 10);
+						tempArr.pop();
+						if (!!dividend) {
+							tempArr.push(dividend);
+						}
+					}
+					concatenated = `${tempArr.join(' ')} `;
+					this.setState({
+						operation: concatenated,
+						actionArr: tempArr
+					});
+				}
+				return;
+			}
 			
 			this.setState({
 				reset: false,
@@ -91,6 +119,7 @@ export default class CalculatorPanel extends Component {
 		} else {
 			tempArr = [];
 			this._inProgress = true;
+			this._resultShown = false;
 			if (value !== "-" && OPERATIONS.includes(value)) {
 				this.setState({
 					reset: false,
@@ -114,8 +143,22 @@ export default class CalculatorPanel extends Component {
 		if (!OPERATIONS.includes(value)) {
 			let prevValue = tempArr[tempArr.length - 1];
 			if (!!prevValue && !OPERATIONS.includes(prevValue)) {
-				tempArr.pop();
-				tempArr.push(prevValue + value); 
+				if (tempArr.length === 1) {
+					if (this._resultShown) {
+						if (!OPERATIONS.includes(value)) {
+							tempArr.pop();
+							tempArr.push(value)
+						} else {
+							tempArr.push(value)
+						}
+					} else {
+						tempArr.pop();
+						tempArr.push(prevValue + value)
+					}
+				} else {
+					tempArr.pop();
+					tempArr.push(prevValue + value)
+				}
 			} else {
 				if (tempArr.length === 1) {
 					if (prevValue === "-" && !OPERATIONS.includes(value)) {
@@ -130,15 +173,7 @@ export default class CalculatorPanel extends Component {
 				}
 			}
 		} else {
-			// if (prevValue === "-" && value === "-") {
-			// 	tempArr.pop();
-			// 	tempArr.push(prevValue + value);
-			// } else if (value === "-" && !!prevValue && OPERATIONS.includes(prevValue)) {
-			// 	tempArr.pop();
-			// 	tempArr.push(prevValue + value);
-			// } else {
 				tempArr.push(value);
-			// }
 		}
 		this.setState({
 			reset: false,
@@ -148,6 +183,9 @@ export default class CalculatorPanel extends Component {
 		let result = "";
 		if (tempArr.length > 2) {
 			result = this.performOperations(value, tempArr.slice(0));
+		}
+		if (value !== "=") {
+			this._resultShown = false;
 		}
 		return result;
 	}
@@ -284,24 +322,24 @@ export default class CalculatorPanel extends Component {
 		}
 		result = result instanceof Array ? result: [result];
 		if (saveResult) {
-			this._inProgress = false;
+			this._resultShown = true;
 			setTimeout(() => {
 				let { actionArr } = this.state;
 				let concatenated = `${actionArr.join(" ")} ${result}`;
 				tempHistArr.unshift(concatenated);
 				this.setState({
 					reset: false,
-					actionArr: [],
+					actionArr: result,
 					result: result[0],
 					history: tempHistArr
 				});
 			}, 100 );
 		} else {
+			this._resultShown = false;
 			this.setState({
 				reset: false,
 				result: result[0]
 			});
-			this._inProgress = true;
 		}
 		
 	}
@@ -328,6 +366,7 @@ export default class CalculatorPanel extends Component {
 
 	//clear the result and stored values
 	clear() {
+		this._inProgress = false;
 		this.setState({
 			result: "",
 			operation: "",
@@ -338,6 +377,8 @@ export default class CalculatorPanel extends Component {
 
 	//Isn't it same as clear()
 	reset() {
+		this._inProgress = false;
+		this._resultShown = false;
 		this.setState({
 			result: "",
 			operation: "",
@@ -349,7 +390,7 @@ export default class CalculatorPanel extends Component {
 
 	render() {
 		let { result, actionArr, history, reset, operation } = this.state;
-		let className = this._inProgress ? "" :  "final";
+		let className = this._resultShown ? "final" :  "";
 		return (
 			<div className="main-view">
 				<div className="history-view">
@@ -364,7 +405,7 @@ export default class CalculatorPanel extends Component {
 							onClear={ this.clear.bind(this) }
 							onReset={ this.reset.bind(this) }
 						/>
-						<Functions reset={ reset } updateActionArr={ this.updateActionArr.bind(this) } 
+						<Functions resultShown={ this._resultShown } reset={ reset } updateActionArr={ this.updateActionArr.bind(this) } 
 						/>
 					</div>
 				</div>
