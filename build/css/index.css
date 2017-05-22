@@ -99,7 +99,12 @@
 #root .my-calculator {
   width: 400px;
   height: 300px;
-  margin: 50px 0 0 450px;
+  margin: 0 0 0 450px;
+}
+#root .my-calculator .title {
+  font-size: 31px;
+  color: green;
+  margin-bottom: 20px;
 }
 #root .flex {
   display: flex;

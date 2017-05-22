@@ -18,13 +18,17 @@ lint:
 	@$(BIN)/eslint --ext .jsx,.es src/**
 
 dev:
-	-@NODE_ENV=development $(BIN)/gulp dev --watch
+	-@NODE_ENV=development $(BIN)/gulp dev
+	# -@NODE_ENV=development @$(BIN)/webpack -d --watch
 
 install: installdeps
 
 installdeps:
 	-@npm install
 
+watch:
+	@$(BIN)/webpack -d --watch
+
 build:
 	-@NODE_ENV=development 
-	$(BIN)/webpack -d --watch
+	

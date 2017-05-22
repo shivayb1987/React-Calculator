@@ -63,7 +63,11 @@ export default class CalculatorPanel extends Component {
 			}
 			if (OPERATIONS.includes(prevValue) && OPERATIONS.includes(value)) {
 				tempArr.pop();
-				concatenated = `${tempArr.join(' ')} ${value}`;
+				if (value === "=") {
+					concatenated = "";
+				} else {
+					concatenated = `${tempArr.join(' ')} ${value}`;
+				}
 			} else {
 				if (operation === "") {
 					concatenated = actionArr.join('');
@@ -73,6 +77,9 @@ export default class CalculatorPanel extends Component {
 				concatenated = OPERATIONS.includes(value) ? `${concatenated} ${value} `: `${concatenated}${value}`;
 				if (value === "=") {
 					concatenated = "";
+				}
+				if (tempArr.length === 1 && prevValue === "-" && !OPERATIONS.includes(value)) {
+					concatenated = `-${value}`;
 				}
 			}
 			
@@ -84,7 +91,7 @@ export default class CalculatorPanel extends Component {
 		} else {
 			tempArr = [];
 			this._inProgress = true;
-			if (OPERATIONS.includes(value)) {
+			if (value !== "-" && OPERATIONS.includes(value)) {
 				this.setState({
 					reset: false,
 					operation: "",
@@ -103,29 +110,45 @@ export default class CalculatorPanel extends Component {
 		if (actionArr.length < 2 && value === "=") {
 			return;
 		}
-		tempArr = actionArr.slice(0);
+		let prevValue = tempArr[tempArr.length - 1];
 		if (!OPERATIONS.includes(value)) {
 			let prevValue = tempArr[tempArr.length - 1];
 			if (!!prevValue && !OPERATIONS.includes(prevValue)) {
 				tempArr.pop();
 				tempArr.push(prevValue + value); 
 			} else {
-				tempArr.push(value);
-			} 
+				if (tempArr.length === 1) {
+					if (prevValue === "-" && !OPERATIONS.includes(value)) {
+						tempArr.pop();
+						tempArr.push(prevValue + value);
+					} else if (prevValue === "-" && OPERATIONS.includes(value)) {
+						tempArr.pop();
+						tempArr.push(value);
+					}
+				} else {
+					tempArr.push(value);
+				}
+			}
 		} else {
-			tempArr.push(value);
+			// if (prevValue === "-" && value === "-") {
+			// 	tempArr.pop();
+			// 	tempArr.push(prevValue + value);
+			// } else if (value === "-" && !!prevValue && OPERATIONS.includes(prevValue)) {
+			// 	tempArr.pop();
+			// 	tempArr.push(prevValue + value);
+			// } else {
+				tempArr.push(value);
+			// }
 		}
 		this.setState({
 			reset: false,
-			result: ""
+			result: "",
+			actionArr: tempArr
 		});
 		let result = "";
 		if (tempArr.length > 2) {
 			result = this.performOperations(value, tempArr.slice(0));
 		}
-		this.setState({
-			actionArr: tempArr
-		});
 		return result;
 	}
 
@@ -248,7 +271,7 @@ export default class CalculatorPanel extends Component {
 	}
 
 	updateState(result, saveResult, partialResultPresent = false) {
-		let { history, actionArr, operation } = this.state;
+		let { history, operation } = this.state;
 		let tempHistArr = history.slice();
 		result = result instanceof Array ? result: [result];
 		if (partialResultPresent) {
@@ -258,19 +281,21 @@ export default class CalculatorPanel extends Component {
 				history: tempHistArr
 			});
 			return;
-		} else if (saveResult) {
-			let concatenated = `${actionArr.join(" ")} = ${result}`;
-			tempHistArr.unshift(concatenated);
 		}
 		result = result instanceof Array ? result: [result];
 		if (saveResult) {
-			this.setState({
-				reset: false,
-				actionArr: [],
-				result: result[0],
-				history: tempHistArr
-			});
 			this._inProgress = false;
+			setTimeout(() => {
+				let { actionArr } = this.state;
+				let concatenated = `${actionArr.join(" ")} ${result}`;
+				tempHistArr.unshift(concatenated);
+				this.setState({
+					reset: false,
+					actionArr: [],
+					result: result[0],
+					history: tempHistArr
+				});
+			}, 100 );
 		} else {
 			this.setState({
 				reset: false,
@@ -286,7 +311,7 @@ export default class CalculatorPanel extends Component {
 			// alert('Cannot divide by 0!');
 			return;
 		}
-		return a / b;
+		return (a / b).toFixed(3);
 	}
 
 	multiply(a, b) {

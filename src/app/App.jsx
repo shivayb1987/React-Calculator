@@ -6,6 +6,7 @@ export default class App extends Component {
 	render() {
 		return (
 			<div className="my-calculator">
+				<div className="title">Basic Calculator Using ReactJS</div>
 				<CalculatorPanel/>
 				<HistoryPanel/>
 			</div>
