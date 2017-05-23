@@ -71,6 +71,12 @@ export default class Functions extends Component {
 		this.resetFunctionClasses();
 		//override for the current function
 		e.target.setAttribute("class", "function clicked");
+		if (symbol === "=") {
+			e.persist && e.persist();
+			setTimeout(() => {
+				e.target.setAttribute("class", "function");
+			}, 1000);
+		}
 	}
 	
 	render () {

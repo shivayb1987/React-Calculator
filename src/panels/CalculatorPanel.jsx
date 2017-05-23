@@ -81,7 +81,11 @@ export default class CalculatorPanel extends Component {
 				} else {
 					concatenated = operation;
 				}
-				concatenated = OPERATIONS.includes(value) ? `${concatenated} ${value} `: `${concatenated}${value}`;
+				if (OPERATIONS.includes(prevValue)) {
+					concatenated = OPERATIONS.includes(value) ? `${concatenated} ${value} `: `${concatenated} ${value}`;
+				} else {
+					concatenated = OPERATIONS.includes(value) ? `${concatenated} ${value}`: `${concatenated}${value}`;
+				}
 				if (value === "=") {
 					concatenated = "";
 				}
@@ -91,7 +95,7 @@ export default class CalculatorPanel extends Component {
 			}
 
 			if (value === "DEL") {
-				if (!!tempArr.length) {
+				if (!this._resultShown && !!tempArr.length) {
 					let lastValue = tempArr[tempArr.length -1];
 					if (OPERATIONS.includes(lastValue)) {
 						tempArr.pop();
@@ -102,7 +106,7 @@ export default class CalculatorPanel extends Component {
 							tempArr.push(dividend);
 						}
 					}
-					concatenated = `${tempArr.join(' ')} `;
+					concatenated = `${tempArr.join(' ')}`;
 					this.setState({
 						operation: concatenated,
 						actionArr: tempArr
