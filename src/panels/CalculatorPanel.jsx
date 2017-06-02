@@ -349,7 +349,12 @@ export default class CalculatorPanel extends Component {
 	}
 
 	fixDecimals (n) {
-		return n.fixedTo(3);
+		let str = "" + n; 
+		if (!!~str.indexOf(".")) {
+			return n.toFixed(3);
+		}
+		
+		return n;
 	}
 
 	divide(a, b) {
