@@ -348,16 +348,20 @@ export default class CalculatorPanel extends Component {
 		
 	}
 
+	fixDecimals (n) {
+		return n.fixedTo(3);
+	}
+
 	divide(a, b) {
 		if (b === 0) {
 			// alert('Cannot divide by 0!');
 			return;
 		}
-		return (a / b).toFixed(3);
+		return this.fixDecimals(a / b);
 	}
 
 	multiply(a, b) {
-		return a * b;
+		return this.fixDecimals(a * b);
 	}
 
 	subtract(a, b) {

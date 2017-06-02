@@ -86,7 +86,6 @@
 .functions .function {
   flex: 1;
   text-align: center;
-  height: 50px;
   cursor: pointer;
   background-color: rgba(255, 152, 0, 0.32);
   padding-top: 25px;
